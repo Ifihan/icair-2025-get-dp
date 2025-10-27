@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, jsonify
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 import io
 import base64
 import os
@@ -23,6 +23,10 @@ def process_image():
         if uploaded_file.filename == "":
             return jsonify({"error": "No image selected"}), 400
 
+        username = request.form.get("username", "").strip()
+        if not username:
+            return jsonify({"error": "Username is required"}), 400
+
         user_image = Image.open(uploaded_file.stream).convert("RGBA")
 
         frame_path = os.path.join(os.path.dirname(__file__), "dp.png")
@@ -31,8 +35,8 @@ def process_image():
         frame_width, frame_height = frame.size
 
         circle_center_x = frame_width // 2
-        circle_center_y = int(frame_height * 0.50)
-        circle_diameter = int(frame_width * 0.35)
+        circle_center_y = int(frame_height * 0.525)
+        circle_diameter = int(frame_width * 0.395)
         circle_radius = circle_diameter // 2
 
         user_image_resized = resize_and_crop(
@@ -48,6 +52,9 @@ def process_image():
         paste_x = circle_center_x - circle_radius
         paste_y = circle_center_y - circle_radius
         result.paste(user_image_resized, (paste_x, paste_y), user_image_resized)
+
+        draw = ImageDraw.Draw(result)
+        add_username_text(draw, username, frame_width, frame_height)
 
         img_io = io.BytesIO()
         result.save(img_io, "PNG", quality=95)
@@ -92,7 +99,40 @@ def create_circular_mask(size):
     return mask
 
 
+def add_username_text(draw, username, frame_width, frame_height):
+    username = username.upper()
+
+    text_box_center_y = int(frame_height * 0.745)
+    text_box_width = int(frame_width * 0.55)
+
+    font_path = os.path.join(
+        os.path.dirname(__file__),
+        "fonts/ClashDisplay-Medium.otf",
+    )
+
+    base_font_size = int(frame_width * 0.055)
+    font = ImageFont.truetype(font_path, base_font_size)
+
+    text_bbox = draw.textbbox((0, 0), username, font=font)
+    text_width = text_bbox[2] - text_bbox[0]
+    text_height = text_bbox[3] - text_bbox[1]
+
+    if text_width > text_box_width:
+        scale_factor = text_box_width / text_width
+        new_font_size = int(base_font_size * scale_factor * 0.95)
+        font = ImageFont.truetype(font_path, new_font_size)
+        text_bbox = draw.textbbox((0, 0), username, font=font)
+        text_width = text_bbox[2] - text_bbox[0]
+        text_height = text_bbox[3] - text_bbox[1]
+
+    text_x = (frame_width - text_width) // 2
+    text_y = text_box_center_y - (text_height // 2)
+
+    draw.text((text_x, text_y), username, fill=(0, 0, 0, 255), font=font)
+
+
 if __name__ == "__main__":
     import os
+
     port = int(os.environ.get("PORT", 8080))
-    app.run(host="0.0.0.0", port=port)
+    app.run(host="0.0.0.0", port=port, debug=True)
