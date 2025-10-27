@@ -279,14 +279,14 @@
 </head>
 <body>
     <div class="container">
-        <h1>ICAIR 2025</h1>
-        <p class="subtitle">Generate your conference profile picture</p>
+        <h1 id="pageTitle">ICAIR 2025</h1>
+        <p class="subtitle" id="pageSubtitle">Generate your conference profile picture</p>
 
         <div class="error-message" id="errorMessage"></div>
 
         <div class="input-group">
-            <label for="usernameInput">Username <span style="color: #dc2626;">*</span></label>
-            <input type="text" id="usernameInput" placeholder="Enter your username" maxlength="30" required>
+            <label for="usernameInput">Name <span style="color: #dc2626;">*</span></label>
+            <input type="text" id="usernameInput" placeholder="Enter your name" maxlength="30" required>
         </div>
 
         <div class="upload-area" id="uploadArea">
@@ -357,11 +357,13 @@
         function handleFile(file) {
             if (!file.type.startsWith('image/')) {
                 showError('Please upload an image file');
+                fileInput.value = '';
                 return;
             }
 
             if (file.size > 16 * 1024 * 1024) {
                 showError('File size must be less than 16MB');
+                fileInput.value = '';
                 return;
             }
 
@@ -372,7 +374,9 @@
             const username = usernameInput.value.trim();
 
             if (!username) {
-                showError('Please enter your username');
+                showError('Please enter your name');
+                usernameInput.focus();
+                fileInput.value = '';
                 return;
             }
 
@@ -402,6 +406,9 @@
                 loading.classList.remove('show');
                 previewContainer.classList.add('show');
 
+                document.getElementById('pageTitle').textContent = 'Your Profile Picture is Ready!';
+                document.getElementById('pageSubtitle').textContent = 'Download your customized ICAIR 2025 profile picture';
+
             } catch (error) {
                 console.error('Error:', error);
                 showError(error.message);
@@ -424,6 +431,9 @@
             fileInput.value = '';
             usernameInput.value = '';
             hideError();
+
+            document.getElementById('pageTitle').textContent = 'ICAIR 2025';
+            document.getElementById('pageSubtitle').textContent = 'Generate your conference profile picture';
         });
 
         function showError(message) {

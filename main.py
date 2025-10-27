@@ -35,7 +35,7 @@ def process_image():
         frame_width, frame_height = frame.size
 
         circle_center_x = frame_width // 2
-        circle_center_y = int(frame_height * 0.525)
+        circle_center_y = int(frame_height * 0.50)
         circle_diameter = int(frame_width * 0.395)
         circle_radius = circle_diameter // 2
 
@@ -103,32 +103,69 @@ def add_username_text(draw, username, frame_width, frame_height):
     username = username.upper()
 
     text_box_center_y = int(frame_height * 0.745)
-    text_box_width = int(frame_width * 0.55)
+    text_box_width = int(frame_width * 0.4)
 
     font_path = os.path.join(
         os.path.dirname(__file__),
         "fonts/ClashDisplay-Medium.otf",
     )
 
-    base_font_size = int(frame_width * 0.055)
+    base_font_size = int(frame_width * 0.04)
     font = ImageFont.truetype(font_path, base_font_size)
 
     text_bbox = draw.textbbox((0, 0), username, font=font)
     text_width = text_bbox[2] - text_bbox[0]
-    text_height = text_bbox[3] - text_bbox[1]
+
+    lines = [username]
 
     if text_width > text_box_width:
-        scale_factor = text_box_width / text_width
-        new_font_size = int(base_font_size * scale_factor * 0.95)
+        words = username.split()
+        if len(words) > 1:
+            lines = []
+            current_line = []
+
+            for word in words:
+                test_line = " ".join(current_line + [word])
+                test_bbox = draw.textbbox((0, 0), test_line, font=font)
+                test_width = test_bbox[2] - test_bbox[0]
+
+                if test_width <= text_box_width:
+                    current_line.append(word)
+                else:
+                    if current_line:
+                        lines.append(" ".join(current_line))
+                        current_line = [word]
+                    else:
+                        lines.append(word)
+
+            if current_line:
+                lines.append(" ".join(current_line))
+
+    max_line_width = 0
+    for line in lines:
+        line_bbox = draw.textbbox((0, 0), line, font=font)
+        line_width = line_bbox[2] - line_bbox[0]
+        max_line_width = max(max_line_width, line_width)
+
+    if max_line_width > text_box_width:
+        scale_factor = text_box_width / max_line_width
+        new_font_size = int(base_font_size * scale_factor * 0.9)
         font = ImageFont.truetype(font_path, new_font_size)
-        text_bbox = draw.textbbox((0, 0), username, font=font)
-        text_width = text_bbox[2] - text_bbox[0]
-        text_height = text_bbox[3] - text_bbox[1]
+        base_font_size = new_font_size
 
-    text_x = (frame_width - text_width) // 2
-    text_y = text_box_center_y - (text_height // 2)
+    sample_bbox = draw.textbbox((0, 0), "A", font=font)
+    single_line_height = sample_bbox[3] - sample_bbox[1]
+    line_spacing = int(single_line_height * 0.3)
 
-    draw.text((text_x, text_y), username, fill=(0, 0, 0, 255), font=font)
+    total_height = (single_line_height * len(lines)) + (line_spacing * (len(lines) - 1))
+    start_y = text_box_center_y - (total_height // 2)
+
+    for i, line in enumerate(lines):
+        line_bbox = draw.textbbox((0, 0), line, font=font)
+        line_width = line_bbox[2] - line_bbox[0]
+        text_x = (frame_width - line_width) // 2
+        text_y = start_y + (i * (single_line_height + line_spacing))
+        draw.text((text_x, text_y), line, fill=(0, 0, 0, 255), font=font)
 
 
 if __name__ == "__main__":
