@@ -4,7 +4,9 @@ import io
 import base64
 import os
 import textwrap
+from pillow_heif import register_heif_opener
 
+register_heif_opener()
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024
 
@@ -43,7 +45,17 @@ def process_image():
         if not username:
             return jsonify({"error": "Username is required"}), 400
 
-        user_image = Image.open(uploaded_file.stream).convert("RGBA")
+        image_data = uploaded_file.read()
+        user_image = Image.open(io.BytesIO(image_data))
+
+        try:
+            from PIL import ImageOps
+
+            user_image = ImageOps.exif_transpose(user_image)
+        except Exception:
+            pass
+
+        user_image = user_image.convert("RGBA")
 
         circle_diameter = int(FRAME_WIDTH * 0.395)
         user_image_resized = resize_and_crop(
