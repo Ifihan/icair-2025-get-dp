@@ -509,54 +509,58 @@
             errorMessage.classList.remove('show');
         }
 
-        async function shareWithImage() {
-            const blob = await fetch(previewImage.src).then(r => r.blob());
-            const file = new File([blob], 'icair-2025-dp.jpg', { type: 'image/jpeg' });
-
-            return file;
+        async function downloadImageForSharing() {
+            downloadBtn.click();
+            return new Promise(resolve => setTimeout(resolve, 300));
         }
 
         document.getElementById('shareTwitter').addEventListener('click', async () => {
-            try {
-                const file = await shareWithImage();
+            const text = 'Check out my ICAIR 2025 profile picture! Join us at the 5th International Conference on AI and Robotics https://icair.unilag.edu.ng/\n\nCreate yours at https://bit.ly/icar-2025-dp';
 
-                if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                    await navigator.share({
-                        files: [file],
-                        text: 'Check out my ICAIR 2025 profile picture! Join us at the 5th International Conference on AI and Robotics https://icair.unilag.edu.ng/\n\nCreate yours at https://bit.ly/icar-2025-dp',
-                        url: window.location.href
-                    });
-                } else {
-                    const text = 'Check out my ICAIR 2025 profile picture! Join us at the 5th International Conference on AI and Robotics https://icair.unilag.edu.ng/\n\nCreate yours at https://bit.ly/icar-2025-dp';
-                    const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
-                    window.open(twitterUrl, '_blank', 'width=550,height=420');
-                }
-            } catch (error) {
-                console.error('Error sharing:', error);
-                const text = 'Check out my ICAIR 2025 profile picture! Join us at the 5th International Conference on AI and Robotics https://icair.unilag.edu.ng/\n\nCreate yours at https://bit.ly/icar-2025-dp';
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+            if (isMobile) {
+                await downloadImageForSharing();
+
+                setTimeout(() => {
+                    alert('Image downloaded! Now opening Twitter app. Please attach the downloaded image to your post.');
+
+                    const twitterAppUrl = `twitter://post?message=${encodeURIComponent(text)}`;
+                    const twitterWebUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
+
+                    window.location.href = twitterAppUrl;
+
+                    setTimeout(() => {
+                        window.open(twitterWebUrl, '_blank');
+                    }, 500);
+                }, 400);
+            } else {
                 const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
                 window.open(twitterUrl, '_blank', 'width=550,height=420');
             }
         });
 
         document.getElementById('shareLinkedIn').addEventListener('click', async () => {
-            try {
-                const file = await shareWithImage();
+            const text = 'Check out my ICAIR 2025 profile picture! Join us at the 5th International Conference on AI and Robotics https://icair.unilag.edu.ng/\n\nCreate yours at https://bit.ly/icar-2025-dp';
 
-                if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                    await navigator.share({
-                        files: [file],
-                        text: 'Check out my ICAIR 2025 profile picture! Join us at the 5th International Conference on AI and Robotics https://icair.unilag.edu.ng/\n\nCreate yours at https://bit.ly/icar-2025-dp',
-                        url: window.location.href
-                    });
-                } else {
-                    const text = 'Check out my ICAIR 2025 profile picture! Join us at the 5th International Conference on AI and Robotics https://icair.unilag.edu.ng/\n\nCreate yours at https://bit.ly/icar-2025-dp';
-                    const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent('https://bit.ly/icar-2025-dp')}`;
-                    window.open(linkedInUrl, '_blank', 'width=550,height=420');
-                }
-            } catch (error) {
-                console.error('Error sharing:', error);
-                const text = 'Check out my ICAIR 2025 profile picture! Join us at the 5th International Conference on AI and Robotics https://icair.unilag.edu.ng/\n\nCreate yours at https://bit.ly/icar-2025-dp';
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+            if (isMobile) {
+                await downloadImageForSharing();
+
+                setTimeout(() => {
+                    alert('Image downloaded! Now opening LinkedIn app. Please attach the downloaded image to your post.');
+
+                    const linkedInAppUrl = `linkedin://sharing/share-offsite/?url=${encodeURIComponent('https://bit.ly/icar-2025-dp')}`;
+                    const linkedInWebUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent('https://bit.ly/icar-2025-dp')}`;
+
+                    window.location.href = linkedInAppUrl;
+
+                    setTimeout(() => {
+                        window.open(linkedInWebUrl, '_blank');
+                    }, 500);
+                }, 400);
+            } else {
                 const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent('https://bit.ly/icar-2025-dp')}`;
                 window.open(linkedInUrl, '_blank', 'width=550,height=420');
             }
