@@ -61,13 +61,15 @@ def process_image():
         draw = ImageDraw.Draw(result)
         add_username_text(draw, username, FRAME_WIDTH, FRAME_HEIGHT)
 
+        result_rgb = result.convert("RGB")
+
         img_io = io.BytesIO()
-        result.save(img_io, "PNG", compress_level=1)
+        result_rgb.save(img_io, "JPEG", quality=90, optimize=False)
         img_io.seek(0)
 
         img_base64 = base64.b64encode(img_io.getvalue()).decode("utf-8")
 
-        return jsonify({"image": f"data:image/png;base64,{img_base64}"})
+        return jsonify({"image": f"data:image/jpeg;base64,{img_base64}"})
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -76,7 +78,7 @@ def process_image():
 def resize_and_crop(image, target_width, target_height):
     max_dimension = 1024
     if image.width > max_dimension or image.height > max_dimension:
-        image.thumbnail((max_dimension, max_dimension), Image.Resampling.LANCZOS)
+        image.thumbnail((max_dimension, max_dimension), Image.Resampling.BICUBIC)
 
     # Efficient cropping and resizing
     img_ratio = image.width / image.height
@@ -89,7 +91,7 @@ def resize_and_crop(image, target_width, target_height):
         new_width = target_width
         new_height = int(target_width / img_ratio)
 
-    image = image.resize((new_width, new_height), Image.Resampling.LANCZOS)
+    image = image.resize((new_width, new_height), Image.Resampling.BICUBIC)
 
     left = int((new_width - target_width) / 2)
     top = int((new_height - target_height) / 2)
