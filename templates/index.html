@@ -514,40 +514,105 @@
             return new Promise(resolve => setTimeout(resolve, 300));
         }
 
+        async function getImageBlob() {
+            try {
+                const response = await fetch(previewImage.src);
+                const blob = await response.blob();
+                return blob;
+            } catch (error) {
+                console.error('Error fetching image:', error);
+                return null;
+            }
+        }
+
+        async function shareWithWebAPI(platform) {
+            const text = "I'm excited to announce that I will be attending the 5th International Conference on AI and Robotics happening on Nov 4-6 at UNILAG.\n\nRegister today: https://icair.unilag.edu.ng/\n\n#icair2025";
+
+            if (navigator.share && navigator.canShare) {
+                try {
+                    const blob = await getImageBlob();
+
+                    if (blob) {
+                        const file = new File([blob], 'icair-2025-dp.png', { type: 'image/png' });
+                        const shareData = {
+                            text: text,
+                            files: [file]
+                        };
+
+                        if (navigator.canShare(shareData)) {
+                            await navigator.share(shareData);
+                            return true;
+                        }
+                    }
+                } catch (error) {
+                    console.log('Web Share API failed:', error);
+                }
+            }
+            return false;
+        }
+
         document.getElementById('shareTwitter').addEventListener('click', async () => {
             const text = "I'm excited to announce that I will be attending the 5th International Conference on AI and Robotics happening on Nov 4-6 at UNILAG.\n\nRegister today: https://icair.unilag.edu.ng/\n\n#icair2025";
 
-            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            // Try Web Share API first (works on mobile and some desktop browsers)
+            const sharedWithAPI = await shareWithWebAPI('twitter');
 
-            if (isMobile) {
-                await downloadImageForSharing();
+            if (!sharedWithAPI) {
+                // Fallback to traditional method
+                const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
-                setTimeout(() => {
-                    alert('Image downloaded! Now opening Twitter app. Please attach the downloaded image to your post.');
-
-                    const twitterAppUrl = `twitter://post?message=${encodeURIComponent(text)}`;
-                    const twitterWebUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
-
-                    window.location.href = twitterAppUrl;
+                if (isMobile) {
+                    await downloadImageForSharing();
 
                     setTimeout(() => {
-                        window.open(twitterWebUrl, '_blank');
-                    }, 500);
-                }, 400);
-            } else {
-                const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
-                window.open(twitterUrl, '_blank', 'width=550,height=420');
+                        alert('Image downloaded! Now opening Twitter app. Please attach the downloaded image to your post.');
+
+                        const twitterAppUrl = `twitter://post?message=${encodeURIComponent(text)}`;
+                        const twitterWebUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
+
+                        window.location.href = twitterAppUrl;
+
+                        setTimeout(() => {
+                            window.open(twitterWebUrl, '_blank');
+                        }, 500);
+                    }, 400);
+                } else {
+                    await downloadImageForSharing();
+
+                    setTimeout(() => {
+                        alert('Image downloaded! The caption has been copied to your clipboard. Opening Twitter - please paste and attach the image.');
+
+                        navigator.clipboard.writeText(text).catch(() => {
+                            console.log('Could not copy to clipboard');
+                        });
+
+                        const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
+                        window.open(twitterUrl, '_blank', 'width=550,height=420');
+                    }, 300);
+                }
             }
         });
 
         document.getElementById('shareLinkedIn').addEventListener('click', async () => {
-            await downloadImageForSharing();
+            const text = "I'm excited to announce that I will be attending the 5th International Conference on AI and Robotics happening on Nov 4-6 at UNILAG.\n\nRegister today: https://icair.unilag.edu.ng/\n\n#icair2025";
 
-            setTimeout(() => {
-                alert('Image downloaded! Now please:\n1. Open LinkedIn\n2. Create a new post\n3. Attach the downloaded image\n4. Use this caption:\n\n"I\'m excited to announce that I will be attending the 5th International Conference on AI and Robotics happening on Nov 4-6 at UNILAG.\n\nRegister today: https://icair.unilag.edu.ng/\n\n#icair2025"');
+            // Try Web Share API first
+            const sharedWithAPI = await shareWithWebAPI('linkedin');
 
-                window.open('https://www.linkedin.com/feed/', '_blank');
-            }, 400);
+            if (!sharedWithAPI) {
+                // Fallback to manual sharing
+                await downloadImageForSharing();
+
+                setTimeout(() => {
+                    navigator.clipboard.writeText(text).then(() => {
+                        alert('Image downloaded and caption copied to clipboard!\n\nNow please:\n1. Open LinkedIn (opening now...)\n2. Create a new post\n3. Attach the downloaded image\n4. Paste the caption (Ctrl/Cmd + V)');
+                    }).catch(() => {
+                        alert('Image downloaded! Now please:\n1. Open LinkedIn\n2. Create a new post\n3. Attach the downloaded image\n4. Use this caption:\n\n"' + text + '"');
+                    });
+
+                    window.open('https://www.linkedin.com/feed/', '_blank');
+                }, 400);
+            }
         });
     </script>
 </body>
