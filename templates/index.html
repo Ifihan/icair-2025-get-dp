@@ -515,7 +515,7 @@
         }
 
         document.getElementById('shareTwitter').addEventListener('click', async () => {
-            const text = 'Check out my ICAIR 2025 profile picture! Join us at the 5th International Conference on AI and Robotics https://icair.unilag.edu.ng/';
+            const text = "I'm excited to announce that I will be attending the 5th International Conference on AI and Robotics happening on Nov 4-6 at UNILAG.\n\nRegister today: https://icair.unilag.edu.ng/\n\n#icair2025";
 
             const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
@@ -541,29 +541,13 @@
         });
 
         document.getElementById('shareLinkedIn').addEventListener('click', async () => {
-            const text = 'Check out my ICAIR 2025 profile picture! Join us at the 5th International Conference on AI and Robotics https://icair.unilag.edu.ng/';
+            await downloadImageForSharing();
 
-            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            setTimeout(() => {
+                alert('Image downloaded! Now please:\n1. Open LinkedIn\n2. Create a new post\n3. Attach the downloaded image\n4. Use this caption:\n\n"I\'m excited to announce that I will be attending the 5th International Conference on AI and Robotics happening on Nov 4-6 at UNILAG.\n\nRegister today: https://icair.unilag.edu.ng/\n\n#icair2025"');
 
-            if (isMobile) {
-                await downloadImageForSharing();
-
-                setTimeout(() => {
-                    alert('Image downloaded! Now opening LinkedIn app. Please attach the downloaded image to your post.');
-
-                    const linkedInAppUrl = `linkedin://sharing/share-offsite/?url=${encodeURIComponent('https://bit.ly/icar-2025-dp')}`;
-                    const linkedInWebUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent('https://bit.ly/icar-2025-dp')}`;
-
-                    window.location.href = linkedInAppUrl;
-
-                    setTimeout(() => {
-                        window.open(linkedInWebUrl, '_blank');
-                    }, 500);
-                }, 400);
-            } else {
-                const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent('https://bit.ly/icar-2025-dp')}`;
-                window.open(linkedInUrl, '_blank', 'width=550,height=420');
-            }
+                window.open('https://www.linkedin.com/feed/', '_blank');
+            }, 400);
         });
     </script>
 </body>
