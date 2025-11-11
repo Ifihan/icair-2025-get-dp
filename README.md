@@ -224,6 +224,7 @@ gunicorn -w 4 -b 0.0.0.0:8080 main:app
 ├── Dockerfile                  # Docker configuration
 ├── README.md                   # This file
 ├── CUSTOMIZATION_CHECKLIST.md  # Quick reference checklist
+├── CONTRIBUTING.md             # Contribution guidelines
 └── LICENSE                     # MIT License
 ```
 
@@ -264,6 +265,14 @@ All positioning uses percentages (0.0 to 1.0) relative to the frame dimensions:
 
 - Search and replace all instances of the color code in `index.html`
 - Update text color in `main.py` if needed
+
+## Contributing
+
+We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details on how to:
+- Report bugs
+- Suggest features
+- Submit pull requests
+- Follow coding guidelines
 
 ## License
 
