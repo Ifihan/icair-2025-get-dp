@@ -10,12 +10,23 @@ register_heif_opener()
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024
 
+# ============================================================================
+# CUSTOMIZATION SECTION - Edit these paths to customize your generator
+# ============================================================================
+# Replace with your font file path (supports .ttf, .otf)
 FONT_PATH = os.path.join(os.path.dirname(__file__), "fonts/ClashDisplay-Medium.otf")
+
+# Replace with your frame/template image path (supports .png with transparency)
 FRAME_PATH = os.path.join(os.path.dirname(__file__), "dp.png")
 
+# ============================================================================
+# LAYOUT CONFIGURATION - Adjust these values to customize positioning
+# ============================================================================
 try:
     FRAME = Image.open(FRAME_PATH).convert("RGBA")
     FRAME_WIDTH, FRAME_HEIGHT = FRAME.size
+
+    # Font size as percentage of frame width (0.04 = 4%)
     BASE_FONT_SIZE = int(FRAME_WIDTH * 0.04)
     FONT = ImageFont.truetype(FONT_PATH, BASE_FONT_SIZE)
 except Exception as e:
@@ -57,6 +68,10 @@ def process_image():
 
         user_image = user_image.convert("RGBA")
 
+        # ============================================================================
+        # IMAGE POSITIONING - Edit these values to adjust the profile picture circle
+        # ============================================================================
+        # Circle size as percentage of frame width (0.395 = 39.5%)
         circle_diameter = int(FRAME_WIDTH * 0.395)
         user_image_resized = resize_and_crop(
             user_image, circle_diameter, circle_diameter
@@ -66,7 +81,9 @@ def process_image():
         user_image_resized.putalpha(mask)
 
         result = FRAME.copy()
+        # Horizontal centering
         paste_x = (FRAME_WIDTH - circle_diameter) // 2
+        # Vertical position (0.50 = 50% from top, centered vertically)
         paste_y = int(FRAME_HEIGHT * 0.50) - (circle_diameter // 2)
         result.paste(user_image_resized, (paste_x, paste_y), user_image_resized)
 
@@ -87,12 +104,16 @@ def process_image():
         return jsonify({"error": str(e)}), 500
 
 
+# ============================================================================
+# HELPER FUNCTIONS - No customization needed below this line
+# ============================================================================
+
 def resize_and_crop(image, target_width, target_height):
+    """Resize and crop image to fit target dimensions while maintaining aspect ratio."""
     max_dimension = 1024
     if image.width > max_dimension or image.height > max_dimension:
         image.thumbnail((max_dimension, max_dimension), Image.Resampling.BICUBIC)
 
-    # Efficient cropping and resizing
     img_ratio = image.width / image.height
     target_ratio = target_width / target_height
 
@@ -114,6 +135,7 @@ def resize_and_crop(image, target_width, target_height):
 
 
 def create_circular_mask(size):
+    """Create a circular mask for the profile picture."""
     mask = Image.new("L", (size, size), 0)
     draw = ImageDraw.Draw(mask)
     draw.ellipse((0, 0, size, size), fill=255)
@@ -121,6 +143,14 @@ def create_circular_mask(size):
 
 
 def add_username_text(draw, username, frame_width, frame_height):
+    """
+    Add username text to the image.
+
+    CUSTOMIZATION POINTS:
+    - text_box_width: Width of text area (0.4 = 40% of frame width)
+    - text_box_center_y: Vertical position of text (0.745 = 74.5% from top)
+    - fill: Text color in RGBA format (0, 0, 0, 255) = black
+    """
     username = username.upper()
     text_box_width = int(frame_width * 0.4)
 
@@ -142,14 +172,16 @@ def add_username_text(draw, username, frame_width, frame_height):
     # Calculate text position
     line_heights = [font.getbbox(line)[3] - font.getbbox(line)[1] for line in lines]
     total_text_height = sum(line_heights) + (len(lines) - 1) * int(font_size * 0.3)
+    # Text vertical position (0.745 = 74.5% from top)
     text_box_center_y = int(frame_height * 0.745)
     start_y = text_box_center_y - (total_text_height // 2)
 
-    # Draw text line by line
+    # Draw text line by line - centered horizontally
     current_y = start_y
     for line, line_height in zip(lines, line_heights):
         text_width = font.getbbox(line)[2]
         text_x = (frame_width - text_width) // 2
+        # Text color: black (0, 0, 0, 255)
         draw.text((text_x, current_y), line, fill=(0, 0, 0, 255), font=font)
         current_y += line_height + int(font_size * 0.3)
 

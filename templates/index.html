@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- CUSTOMIZATION: Update title for your event -->
     <title>ICAIR 2025 - Get Your DP</title>
     <style>
       * {
@@ -11,10 +12,14 @@
         box-sizing: border-box;
       }
 
+      /* ============================================
+         CUSTOMIZATION: Brand Colors
+         Edit these to match your event branding
+         ============================================ */
       body {
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
           "Helvetica Neue", Arial, sans-serif;
-        background: #5e17eb;
+        background: #5e17eb; /* Primary brand color */
         min-height: 100vh;
         display: flex;
         justify-content: center;
@@ -33,7 +38,7 @@
       }
 
       h1 {
-        color: #5e17eb;
+        color: #5e17eb; /* Primary brand color */
         margin-bottom: 12px;
         font-size: 3em;
         font-weight: 700;
@@ -533,6 +538,10 @@
   </head>
   <body>
     <div class="container">
+      <!-- ============================================
+           CUSTOMIZATION: Event Information
+           Edit title and subtitle for your event
+           ============================================ -->
       <h1 id="pageTitle">ICAIR 2025</h1>
       <p class="subtitle" id="pageSubtitle">
         Generate your conference profile picture
@@ -620,6 +629,10 @@
         </div>
       </div>
 
+      <!-- ============================================
+           CUSTOMIZATION: Footer Information
+           Update with your event details
+           ============================================ -->
       <div class="footer">
         <p>
           5th International Conference on Artificial Intelligence and Robotics
@@ -652,6 +665,10 @@
     </div>
 
     <script>
+      // ============================================
+      // CUSTOMIZATION: Social Media Sharing
+      // Update share text and URL for your event
+      // ============================================
       const uploadArea = document.getElementById("uploadArea");
       const fileInput = document.getElementById("fileInput");
       const usernameInput = document.getElementById("usernameInput");
@@ -665,6 +682,10 @@
       const SHARE_TEXT =
         "I'm excited to announce that I will be attending the 5th International Conference on AI and Robotics happening on Nov 4-6 at UNILAG.\n\nRegister today: https://icair.unilag.edu.ng/\n\n#icair2025";
       const SHARE_URL = "https://icair.unilag.edu.ng/";
+
+      // ============================================
+      // Helper Functions - No customization needed below
+      // ============================================
 
       // Custom Alert Dialog Functions
       function showCustomAlert(options) {
